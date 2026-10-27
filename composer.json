@@ -9,7 +9,6 @@
     ],
     "type": "library",
     "license": "MIT",
-    "version": "1.0.0",
     "require": {
         "php": "^8.2",
         "illuminate/auth": "^11.0|^12.0|^13.0",
