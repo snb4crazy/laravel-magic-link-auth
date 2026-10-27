@@ -12,6 +12,7 @@ Reusable Laravel package for passwordless "magic link" login, designed for API b
 ## Integration guides
 
 - [Laravel backend integration examples](docs/laravel-integration.md)
+- [Laravel web app integration (session/cookie auth)](docs/laravel-web-integration.md)
 - [Flutter/mobile app integration examples](docs/flutter-mobile-integration.md)
 
 ## Features
@@ -42,6 +43,7 @@ Default file: `config/magic-link-auth.php`
 
 ```dotenv
 MAGIC_LINK_FRONTEND_URL=myapp://auth/magic-link
+MAGIC_LINK_ROUTE_PREFIX=api/auth/magic-link
 MAGIC_LINK_TTL_MINUTES=15
 MAGIC_LINK_EXCHANGE_CANDIDATE_LIMIT=5
 MAGIC_LINK_REQUIRE_VERIFIED_EMAIL=false
@@ -52,11 +54,28 @@ MAGIC_LINK_REVOKE_EXISTING_TOKENS=false
 ### Important options
 
 - `MAGIC_LINK_FRONTEND_URL`: Link base URL included in email (`email` + `token` query params are appended).
+- `MAGIC_LINK_ROUTE_PREFIX`: API route prefix for this package endpoints (default: `api/auth/magic-link`).
 - `MAGIC_LINK_EXCHANGE_CANDIDATE_LIMIT`: Limits how many latest active tokens are checked on exchange (performance tuning).
 - `MAGIC_LINK_ISSUE_SANCTUM_TOKEN`: When `true`, the package returns `token` + `token_type` if user model supports `createToken`.
 - `MAGIC_LINK_REQUIRE_VERIFIED_EMAIL`: When `true`, unverified users receive `403` during exchange.
 
 ## API Contract
+
+Build the full endpoint URL as:
+
+`<your-api-host>/<MAGIC_LINK_ROUTE_PREFIX>/<action>`
+
+Where:
+
+- `<your-api-host>` is your app domain (for example `http://local.grocery.com` in local development).
+- `<action>` is `request` or `exchange`.
+
+Example with defaults:
+
+- `POST http://local.grocery.com/api/auth/magic-link/request`
+- `POST http://local.grocery.com/api/auth/magic-link/exchange`
+
+`APP_URL` is commonly the same host and helps with URL generation, but the package endpoint path itself is controlled by `MAGIC_LINK_ROUTE_PREFIX`.
 
 ### Request magic link
 
