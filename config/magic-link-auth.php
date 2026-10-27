@@ -18,6 +18,7 @@ return [
     */
     'table' => env('MAGIC_LINK_TABLE', 'magic_link_tokens'),
     'token_ttl_minutes' => (int) env('MAGIC_LINK_TTL_MINUTES', 15),
+    'exchange_candidate_limit' => (int) env('MAGIC_LINK_EXCHANGE_CANDIDATE_LIMIT', 5),
 
     /*
     |--------------------------------------------------------------------------

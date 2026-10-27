@@ -21,4 +21,11 @@ class ExchangeMagicLinkRequest extends FormRequest
             'token' => ['required', 'string', 'min:32'],
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'email' => mb_strtolower(trim((string) $this->input('email'))),
+        ]);
+    }
 }
