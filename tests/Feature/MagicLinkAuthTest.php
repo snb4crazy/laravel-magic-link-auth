@@ -109,5 +109,49 @@ class MagicLinkAuthTest extends TestCase
             ]);
     }
     
+    private function firstIssuedToken(): string
+    {
+        Mail::assertSent(MagicLinkMail::class);
+        
+        /** @var MagicLinkMail $mail */
+        $mail = Mail::sent(MagicLinkMail::class)->last();
+        parse_str((string) parse_url((string) $mail->magicLinkUrl, PHP_URL_QUERY), $query);
+        
+        return (string) ($query['token'] ?? '');
+    }
+    
+    public function test_exchange_candidate_limit_config_controls_lookup_window(): void
+    {
+        config()->set('magic-link-auth.exchange_candidate_limit', 1);
+        
+        Mail::fake();
+        TestUser::query()->create([
+            'email' => 'window@example.com',
+            'email_verified_at' => now(),
+        ]);
+        
+        $this->postJson('/api/auth/magic-link/request', [
+            'email' => 'window@example.com',
+        ])->assertOk();
+        $firstToken = $this->firstIssuedToken();
+        
+        $this->postJson('/api/auth/magic-link/request', [
+            'email' => 'window@example.com',
+        ])->assertOk();
+        $secondToken = $this->firstIssuedToken();
+        
+        $this->assertNotSame($firstToken, $secondToken);
+        
+        $this->postJson('/api/auth/magic-link/exchange', [
+            'email' => 'window@example.com',
+            'token' => $firstToken,
+        ])->assertStatus(422);
+        
+        $this->postJson('/api/auth/magic-link/exchange', [
+            'email' => 'window@example.com',
+            'token' => $secondToken,
+        ])->assertOk();
+    }
+    
     
 }
