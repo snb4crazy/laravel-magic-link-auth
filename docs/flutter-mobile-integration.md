@@ -58,6 +58,11 @@ Always show a neutral success UI like:
 
 ## 4) Handle incoming deep link
 
+Before using the listener, register the deep-link scheme with each target platform; installing `app_links` alone does not register `myapp://` URLs:
+
+- Android: in `android/app/src/main/AndroidManifest.xml`, add an intent filter to the Flutter activity with action `android.intent.action.VIEW`, categories `android.intent.category.DEFAULT` and `android.intent.category.BROWSABLE`, and data matching scheme `myapp`, host `auth`, and path `/magic-link`.
+- iOS: in `ios/Runner/Info.plist`, add a `CFBundleURLTypes` entry whose `CFBundleURLSchemes` contains `myapp`.
+
 ```dart
 import 'package:app_links/app_links.dart';
 
