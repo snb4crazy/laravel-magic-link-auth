@@ -32,11 +32,14 @@
         }
     },
     "require-dev": {
+        "laravel/pint": "^1.17",
         "orchestra/testbench": "^9.0|^10.0",
         "phpunit/phpunit": "^11.0"
     },
     "scripts": {
-        "test": "vendor/bin/phpunit"
+        "test": "vendor/bin/phpunit",
+        "lint": "vendor/bin/pint --test",
+        "format": "vendor/bin/pint"
     },
     "extra": {
         "laravel": {
