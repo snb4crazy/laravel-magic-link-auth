@@ -57,5 +57,30 @@ class MagicLinkAuthTest extends TestCase
             ]);
     }
     
+    public function test_exchange_requires_verified_email_when_enabled(): void
+    {
+        config()->set('magic-link-auth.require_verified_email', true);
+        
+        Mail::fake();
+        TestUser::query()->create([
+            'email' => 'unverified@example.com',
+            'email_verified_at' => null,
+        ]);
+        
+        $this->postJson('/api/auth/magic-link/request', [
+            'email' => 'unverified@example.com',
+        ])->assertOk();
+        
+        $token = $this->firstIssuedToken();
+        
+        $this->postJson('/api/auth/magic-link/exchange', [
+            'email' => 'unverified@example.com',
+            'token' => $token,
+        ])->assertStatus(403)
+            ->assertJsonFragment([
+                'email_verification_required' => true,
+            ]);
+    }
+    
     
 }
