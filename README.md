@@ -2,6 +2,8 @@
 
 [![License: MIT](https://img.shields.io/github/license/snb4crazy/laravel-magic-link-auth)](LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/snb4crazy/laravel-magic-link-auth)](https://github.com/snb4crazy/laravel-magic-link-auth/releases)
+[![CI/CD](https://github.com/snb4crazy/laravel-magic-link-auth/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/snb4crazy/laravel-magic-link-auth/actions/workflows/ci-cd.yml)
+[![Tests](https://github.com/snb4crazy/laravel-magic-link-auth/actions/workflows/tests.yml/badge.svg)](https://github.com/snb4crazy/laravel-magic-link-auth/actions/workflows/tests.yml)
 [![GitHub stars](https://img.shields.io/github/stars/snb4crazy/laravel-magic-link-auth?style=social)](https://github.com/snb4crazy/laravel-magic-link-auth/stargazers)
 [![GitHub last commit](https://img.shields.io/github/last-commit/snb4crazy/laravel-magic-link-auth)](https://github.com/snb4crazy/laravel-magic-link-auth/commits/main)
 

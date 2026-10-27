@@ -33,13 +33,13 @@ class MagicLinkAuthTest extends TestCase
             'email' => 'mixedcase@example.com',
             'email_verified_at' => now(),
         ]);
-        
+
         $this->postJson('/api/auth/magic-link/request', [
             'email' => 'MiXeDCaSe@example.com',
         ])->assertOk();
-        
+
         $token = $this->firstIssuedToken();
-        
+
         $this->postJson('/api/auth/magic-link/exchange', [
             'email' => 'MIXEDCASE@example.com',
             'token' => $token,
@@ -47,7 +47,7 @@ class MagicLinkAuthTest extends TestCase
             ->assertJsonFragment([
                 'message' => 'Logged in successfully.',
             ]);
-        
+
         $this->postJson('/api/auth/magic-link/exchange', [
             'email' => 'mixedcase@example.com',
             'token' => $token,
@@ -56,23 +56,23 @@ class MagicLinkAuthTest extends TestCase
                 'message' => 'The magic link is invalid or has expired.',
             ]);
     }
-    
+
     public function test_exchange_requires_verified_email_when_enabled(): void
     {
         config()->set('magic-link-auth.require_verified_email', true);
-        
+
         Mail::fake();
         TestUser::query()->create([
             'email' => 'unverified@example.com',
             'email_verified_at' => null,
         ]);
-        
+
         $this->postJson('/api/auth/magic-link/request', [
             'email' => 'unverified@example.com',
         ])->assertOk();
-        
+
         $token = $this->firstIssuedToken();
-        
+
         $this->postJson('/api/auth/magic-link/exchange', [
             'email' => 'unverified@example.com',
             'token' => $token,
@@ -81,24 +81,24 @@ class MagicLinkAuthTest extends TestCase
                 'email_verification_required' => true,
             ]);
     }
-    
+
     public function test_exchange_returns_api_token_payload_when_enabled(): void
     {
         config()->set('magic-link-auth.issue_sanctum_token', true);
         config()->set('magic-link-auth.sanctum_token_name', 'integration-test');
-        
+
         Mail::fake();
         TestUser::query()->create([
             'email' => 'api@example.com',
             'email_verified_at' => now(),
         ]);
-        
+
         $this->postJson('/api/auth/magic-link/request', [
             'email' => 'api@example.com',
         ])->assertOk();
-        
+
         $token = $this->firstIssuedToken();
-        
+
         $this->postJson('/api/auth/magic-link/exchange', [
             'email' => 'api@example.com',
             'token' => $token,
@@ -108,51 +108,51 @@ class MagicLinkAuthTest extends TestCase
                 'token_type' => 'Bearer',
             ]);
     }
-    
+
     private function firstIssuedToken(): string
     {
         Mail::assertSent(MagicLinkMail::class);
-        
+
         /** @var MagicLinkMail $mail */
         $mail = Mail::sent(MagicLinkMail::class)->last();
         parse_str((string) parse_url((string) $mail->magicLinkUrl, PHP_URL_QUERY), $query);
-        
+
         return (string) ($query['token'] ?? '');
     }
-    
+
     public function test_exchange_candidate_limit_config_controls_lookup_window(): void
     {
         config()->set('magic-link-auth.exchange_candidate_limit', 1);
-        
+
         Mail::fake();
         TestUser::query()->create([
             'email' => 'window@example.com',
             'email_verified_at' => now(),
         ]);
-        
+
         $this->postJson('/api/auth/magic-link/request', [
             'email' => 'window@example.com',
         ])->assertOk();
         $firstToken = $this->firstIssuedToken();
-        
+
         $this->postJson('/api/auth/magic-link/request', [
             'email' => 'window@example.com',
         ])->assertOk();
         $secondToken = $this->firstIssuedToken();
-        
+
         $this->assertNotSame($firstToken, $secondToken);
-        
+
         $this->postJson('/api/auth/magic-link/exchange', [
             'email' => 'window@example.com',
             'token' => $firstToken,
         ])->assertStatus(422);
-        
+
         $this->postJson('/api/auth/magic-link/exchange', [
             'email' => 'window@example.com',
             'token' => $secondToken,
         ])->assertOk();
     }
-    
+
     public function test_request_persists_normalized_email(): void
     {
         Mail::fake();
@@ -160,15 +160,15 @@ class MagicLinkAuthTest extends TestCase
             'email' => 'normalize@example.com',
             'email_verified_at' => now(),
         ]);
-        
+
         $this->postJson('/api/auth/magic-link/request', [
             'email' => ' Normalize@Example.Com ',
         ])->assertOk();
-        
+
         $stored = DB::table(config('magic-link-auth.table'))
             ->latest('id')
             ->first();
-        
+
         $this->assertNotNull($stored);
         $this->assertSame('normalize@example.com', $stored->email);
     }

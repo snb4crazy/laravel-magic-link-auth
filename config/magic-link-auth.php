@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -25,7 +27,7 @@ return [
     | User lookup
     |--------------------------------------------------------------------------
     */
-    'user_model' => env('MAGIC_LINK_USER_MODEL', config('auth.providers.users.model', \App\Models\User::class)),
+    'user_model' => env('MAGIC_LINK_USER_MODEL', config('auth.providers.users.model', User::class)),
     'email_column' => env('MAGIC_LINK_EMAIL_COLUMN', 'email'),
     'require_verified_email' => (bool) env('MAGIC_LINK_REQUIRE_VERIFIED_EMAIL', false),
 
