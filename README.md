@@ -9,38 +9,49 @@ Reusable Laravel package for passwordless "magic link" login, designed for API b
 
 ## Features
 
-- `POST /api/auth/magic-link/request` to request login link by email
-- `POST /api/auth/magic-link/exchange` to exchange token for auth session/token
-- One-time token consumption with expiration
-- Non-enumerating request response (always generic success message)
-- Configurable route prefix, TTL, model/email column, and frontend/deep-link URL
-- Sanctum token issuing support (optional)
+- `POST /api/auth/magic-link/request` to request a one-time login link
+- `POST /api/auth/magic-link/exchange` to exchange link token for authenticated payload
+- One-time token consumption with expiry window
+- Enumeration-safe request response (same success message for known/unknown emails)
+- Configurable route prefix, middleware, TTL, lookup model/column, and frontend/deep-link URL
+- Optional verified-email requirement and optional existing-token revocation
 
-## Install
+## Installation
 
 ```bash
 composer require snb4crazy/laravel-magic-link-auth
 php artisan migrate
 ```
 
-Optional config publish:
+Publish package config when you need customization:
 
 ```bash
 php artisan vendor:publish --tag=magic-link-auth-config
 ```
 
-## Environment example
+## Configuration
+
+Default file: `config/magic-link-auth.php`
 
 ```dotenv
 MAGIC_LINK_FRONTEND_URL=myapp://auth/magic-link
 MAGIC_LINK_TTL_MINUTES=15
+MAGIC_LINK_EXCHANGE_CANDIDATE_LIMIT=5
 MAGIC_LINK_REQUIRE_VERIFIED_EMAIL=false
 MAGIC_LINK_ISSUE_SANCTUM_TOKEN=true
+MAGIC_LINK_REVOKE_EXISTING_TOKENS=false
 ```
 
-## API contract
+### Important options
 
-### Request a link
+- `MAGIC_LINK_FRONTEND_URL`: Link base URL included in email (`email` + `token` query params are appended).
+- `MAGIC_LINK_EXCHANGE_CANDIDATE_LIMIT`: Limits how many latest active tokens are checked on exchange (performance tuning).
+- `MAGIC_LINK_ISSUE_SANCTUM_TOKEN`: When `true`, the package returns `token` + `token_type` if user model supports `createToken`.
+- `MAGIC_LINK_REQUIRE_VERIFIED_EMAIL`: When `true`, unverified users receive `403` during exchange.
+
+## API Contract
+
+### Request magic link
 
 `POST /api/auth/magic-link/request`
 
@@ -58,7 +69,7 @@ Always returns:
 }
 ```
 
-### Exchange link token
+### Exchange magic link
 
 `POST /api/auth/magic-link/exchange`
 
@@ -69,7 +80,16 @@ Always returns:
 }
 ```
 
-Sanctum mode response:
+Session mode response:
+
+```json
+{
+  "user": { "...": "..." },
+  "message": "Logged in successfully."
+}
+```
+
+Token mode response:
 
 ```json
 {
@@ -79,6 +99,22 @@ Sanctum mode response:
 }
 ```
 
-## Notes for Flutter
+## Integration Notes
 
-Set `MAGIC_LINK_FRONTEND_URL` to your deep link, for example `myapp://auth/magic-link`. The package appends `email` and `token` query params, so the app can extract them and call `/exchange`.
+### Laravel backend integration
+
+- Ensure your user model is configured in `auth.providers.users.model`.
+- If using token mode, your user model must expose `createToken(...)` (for example via Sanctum's `HasApiTokens`).
+- Named routes are available: `magic-link-auth.request` and `magic-link-auth.exchange`.
+
+### Mobile/Flutter deep-link integration
+
+Set `MAGIC_LINK_FRONTEND_URL` to your app deep link (for example `myapp://auth/magic-link`). The package appends `email` and `token`, which your app can read and submit to `/exchange`.
+
+## Development and testing
+
+Run the package test suite:
+
+```bash
+composer test
+```
