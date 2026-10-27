@@ -153,5 +153,23 @@ class MagicLinkAuthTest extends TestCase
         ])->assertOk();
     }
     
-    
+    public function test_request_persists_normalized_email(): void
+    {
+        Mail::fake();
+        TestUser::query()->create([
+            'email' => 'normalize@example.com',
+            'email_verified_at' => now(),
+        ]);
+        
+        $this->postJson('/api/auth/magic-link/request', [
+            'email' => ' Normalize@Example.Com ',
+        ])->assertOk();
+        
+        $stored = DB::table(config('magic-link-auth.table'))
+            ->latest('id')
+            ->first();
+        
+        $this->assertNotNull($stored);
+        $this->assertSame('normalize@example.com', $stored->email);
+    }
 }
