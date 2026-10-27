@@ -133,7 +133,9 @@ MAGIC_LINK_ISSUE_SANCTUM_TOKEN=false
 MAGIC_LINK_SESSION_GUARD=web
 ```
 
-Then `/exchange` logs in via guard and returns:
+The default API-only middleware does not persist sessions. In the published `config/magic-link-auth.php`, set `route_middleware` to `['web']` (or configure an equivalent stateful middleware stack). Clients must retain and send the session cookie on subsequent requests and supply a valid CSRF token when posting to `/request` and `/exchange`.
+
+With that middleware in place, `/exchange` logs in via the configured guard and returns:
 
 ```json
 {
