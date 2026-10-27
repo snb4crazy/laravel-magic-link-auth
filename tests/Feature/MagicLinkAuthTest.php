@@ -82,5 +82,32 @@ class MagicLinkAuthTest extends TestCase
             ]);
     }
     
+    public function test_exchange_returns_api_token_payload_when_enabled(): void
+    {
+        config()->set('magic-link-auth.issue_sanctum_token', true);
+        config()->set('magic-link-auth.sanctum_token_name', 'integration-test');
+        
+        Mail::fake();
+        TestUser::query()->create([
+            'email' => 'api@example.com',
+            'email_verified_at' => now(),
+        ]);
+        
+        $this->postJson('/api/auth/magic-link/request', [
+            'email' => 'api@example.com',
+        ])->assertOk();
+        
+        $token = $this->firstIssuedToken();
+        
+        $this->postJson('/api/auth/magic-link/exchange', [
+            'email' => 'api@example.com',
+            'token' => $token,
+        ])->assertOk()
+            ->assertJsonFragment([
+                'token' => 'test-token-value',
+                'token_type' => 'Bearer',
+            ]);
+    }
+    
     
 }
