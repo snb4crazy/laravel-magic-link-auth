@@ -26,5 +26,36 @@ class MagicLinkAuthTest extends TestCase
         Mail::assertNothingSent();
     }
 
+    public function test_exchange_consumes_token_once_with_session_mode(): void
+    {
+        Mail::fake();
+        TestUser::query()->create([
+            'email' => 'mixedcase@example.com',
+            'email_verified_at' => now(),
+        ]);
+        
+        $this->postJson('/api/auth/magic-link/request', [
+            'email' => 'MiXeDCaSe@example.com',
+        ])->assertOk();
+        
+        $token = $this->firstIssuedToken();
+        
+        $this->postJson('/api/auth/magic-link/exchange', [
+            'email' => 'MIXEDCASE@example.com',
+            'token' => $token,
+        ])->assertOk()
+            ->assertJsonFragment([
+                'message' => 'Logged in successfully.',
+            ]);
+        
+        $this->postJson('/api/auth/magic-link/exchange', [
+            'email' => 'mixedcase@example.com',
+            'token' => $token,
+        ])->assertStatus(422)
+            ->assertJsonFragment([
+                'message' => 'The magic link is invalid or has expired.',
+            ]);
+    }
+    
     
 }
