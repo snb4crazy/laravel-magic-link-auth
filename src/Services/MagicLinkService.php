@@ -20,6 +20,7 @@ class MagicLinkService
 
     public function requestMagicLink(string $email, ?string $ip = null, ?string $userAgent = null): void
     {
+        $email = $this->normalizeEmail($email);
         $user = $this->resolveUserByEmail($email);
 
         if (! $user) {
@@ -51,6 +52,7 @@ class MagicLinkService
      */
     public function exchangeMagicLink(string $email, string $plainToken, ?string $ip = null, ?string $userAgent = null): array
     {
+        $email = $this->normalizeEmail($email);
         $user = $this->resolveUserByEmail($email);
 
         if (! $user) {
@@ -66,7 +68,7 @@ class MagicLinkService
             ->whereNull('consumed_at')
             ->where('expires_at', '>', now())
             ->orderByDesc('id')
-            ->limit(5)
+            ->limit($this->exchangeCandidateLimit())
             ->get();
 
         foreach ($rows as $row) {
@@ -150,6 +152,11 @@ class MagicLinkService
         return $user instanceof Authenticatable ? $user : null;
     }
 
+    private function normalizeEmail(string $email): string
+    {
+        return mb_strtolower(trim($email));
+    }
+
     private function table(): string
     {
         return (string) config('magic-link-auth.table', 'magic_link_tokens');
@@ -158,6 +165,11 @@ class MagicLinkService
     private function ttlMinutes(): int
     {
         return max(1, (int) config('magic-link-auth.token_ttl_minutes', 15));
+    }
+
+    private function exchangeCandidateLimit(): int
+    {
+        return max(1, (int) config('magic-link-auth.exchange_candidate_limit', 5));
     }
 
     private function shouldIssueSanctumToken(): bool

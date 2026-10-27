@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('consumed_ip', 45)->nullable();
             $table->text('consumed_user_agent')->nullable();
             $table->timestamps();
+            $table->index(['email', 'consumed_at', 'expires_at'], 'magic_link_email_consumed_expires_idx');
         });
     }
 
