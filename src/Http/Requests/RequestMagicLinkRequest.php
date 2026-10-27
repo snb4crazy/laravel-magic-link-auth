@@ -20,4 +20,11 @@ class RequestMagicLinkRequest extends FormRequest
             'email' => ['required', 'email'],
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'email' => mb_strtolower(trim((string) $this->input('email'))),
+        ]);
+    }
 }
