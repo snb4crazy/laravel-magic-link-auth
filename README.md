@@ -1,6 +1,11 @@
 # Laravel Magic Link Auth
 
-Reusable Laravel package for passwordless magic-link login. It is designed for API-first backends and supports both session login and token-style responses (for Sanctum-compatible user models).
+[![License: MIT](https://img.shields.io/github/license/snb4crazy/laravel-magic-link-auth)](LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/snb4crazy/laravel-magic-link-auth)](https://github.com/snb4crazy/laravel-magic-link-auth/releases)
+[![GitHub stars](https://img.shields.io/github/stars/snb4crazy/laravel-magic-link-auth?style=social)](https://github.com/snb4crazy/laravel-magic-link-auth/stargazers)
+[![GitHub last commit](https://img.shields.io/github/last-commit/snb4crazy/laravel-magic-link-auth)](https://github.com/snb4crazy/laravel-magic-link-auth/commits/main)
+
+Reusable Laravel package for passwordless "magic link" login, designed for API backends (including Laravel Sanctum token issuing).
 
 ## Features
 
