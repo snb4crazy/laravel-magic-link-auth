@@ -7,6 +7,11 @@
 
 Reusable Laravel package for passwordless "magic link" login, designed for API backends (including Laravel Sanctum token issuing).
 
+## Integration guides
+
+- [Laravel backend integration examples](docs/laravel-integration.md)
+- [Flutter/mobile app integration examples](docs/flutter-mobile-integration.md)
+
 ## Features
 
 - `POST /api/auth/magic-link/request` to request a one-time login link
