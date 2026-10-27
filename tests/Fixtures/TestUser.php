@@ -31,4 +31,3 @@ class TestUser extends Authenticatable
         };
     }
 }
-
