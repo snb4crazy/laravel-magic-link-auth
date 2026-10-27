@@ -6,6 +6,8 @@ This guide shows practical backend setups for `snb4crazy/laravel-magic-link-auth
 
 ```bash
 composer require snb4crazy/laravel-magic-link-auth
+# For bearer-token mode, if Sanctum is not already configured:
+php artisan install:api
 php artisan migrate
 php artisan vendor:publish --tag=magic-link-auth-config
 ```
