@@ -71,8 +71,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('guest')->group(function (): void {
     Route::view('/login', 'auth.magic-link-request')->name('login');
     Route::view('/magic-link', 'auth.magic-link-exchange')->name('magic-link.exchange.page');
-    Route::post('/login/magic-link/request', [MagicLinkWebController::class, 'request'])->name('web.magic-link.request');
-    Route::post('/login/magic-link/exchange', [MagicLinkWebController::class, 'exchange'])->name('web.magic-link.exchange');
+    Route::post('/login/magic-link/request', [MagicLinkWebController::class, 'request'])->name('web.magic-link.request')
+        ->middleware(config('magic-link-auth.request_throttle', 'throttle:5,1'));
+    Route::post('/login/magic-link/exchange', [MagicLinkWebController::class, 'exchange'])->name('web.magic-link.exchange')
+        ->middleware(config('magic-link-auth.exchange_throttle', 'throttle:10,1'));
 });
 
 Route::middleware('auth')->group(function (): void {
