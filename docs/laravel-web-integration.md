@@ -117,9 +117,13 @@ Create `resources/views/auth/magic-link-exchange.blade.php`:
     </noscript>
 </form>
 
+@if (! $errors->any() && request()->filled(['email', 'token']))
 <script>
     document.getElementById('magic-link-exchange-form').submit();
 </script>
+@else
+    <p>This magic link is invalid. <a href="{{ route('login') }}">Request a new link</a>.</p>
+@endif
 ```
 
 This page reads `email` and `token` from the clicked link query string and posts them to your web controller, which then uses the package service and redirects.
