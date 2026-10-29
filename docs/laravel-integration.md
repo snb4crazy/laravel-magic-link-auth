@@ -147,9 +147,12 @@ With that middleware in place, `/exchange` logs in via the configured guard and 
 }
 ```
 
+For a full browser-first walkthrough (Blade forms, web routes, redirect flow), see [Laravel web app integration](laravel-web-integration.md).
+
 ## 7) Production recommendations
 
 - Keep a short TTL (10-20 minutes).
 - Keep route throttling enabled (default config already does this).
 - Always use HTTPS in production.
 - Use a deep-link URL as `MAGIC_LINK_FRONTEND_URL` for mobile apps.
+- Optionally purge rows from `magic_link_tokens` during account deletion for storage hygiene.

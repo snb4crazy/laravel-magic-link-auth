@@ -57,6 +57,40 @@ class MagicLinkAuthTest extends TestCase
             ]);
     }
 
+    public function test_exchange_rejects_token_after_user_is_deleted_and_email_is_reused(): void
+    {
+        Mail::fake();
+
+        $firstUser = TestUser::query()->create([
+            'email' => 'reused@example.com',
+            'email_verified_at' => now(),
+        ]);
+
+        $this->postJson('/api/auth/magic-link/request', [
+            'email' => 'reused@example.com',
+        ])->assertOk();
+
+        $token = $this->firstIssuedToken();
+        $firstUserId = (string) $firstUser->getAuthIdentifier();
+
+        $firstUser->delete();
+
+        $secondUser = TestUser::query()->create([
+            'email' => 'reused@example.com',
+            'email_verified_at' => now(),
+        ]);
+
+        $this->assertNotSame($firstUserId, (string) $secondUser->getAuthIdentifier());
+
+        $this->postJson('/api/auth/magic-link/exchange', [
+            'email' => 'reused@example.com',
+            'token' => $token,
+        ])->assertStatus(422)
+            ->assertJsonFragment([
+                'message' => 'The magic link is invalid or has expired.',
+            ]);
+    }
+
     public function test_exchange_requires_verified_email_when_enabled(): void
     {
         config()->set('magic-link-auth.require_verified_email', true);

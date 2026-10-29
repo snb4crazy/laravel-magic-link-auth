@@ -63,8 +63,11 @@ class MagicLinkService
             return ['status' => self::STATUS_VERIFICATION_REQUIRED];
         }
 
+        $userId = (string) $user->getAuthIdentifier();
+
         $rows = DB::table($this->table())
             ->where('email', $email)
+            ->where('user_id', $userId)
             ->whereNull('consumed_at')
             ->where('expires_at', '>', now())
             ->orderByDesc('id')
